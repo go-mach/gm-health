@@ -7,7 +7,6 @@ package health
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -35,8 +34,11 @@ func Serve(addr string, s interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	http.Handle("/health", healthHandler(jsonStatus))
-	log.Fatal(http.ListenAndServe(addr, nil))
+	if err = http.ListenAndServe(addr, nil); err != nil {
+		return err
+	}
 
 	return nil
 }
