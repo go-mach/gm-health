@@ -21,7 +21,6 @@ func ServeDefault() {
 			return
 		}
 
-		w.Header().Set("Server", "sospediatra-video-poller")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		w.Write(jsonStatus)
