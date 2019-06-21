@@ -16,13 +16,8 @@ type status struct {
 	Status string `json:"status"`
 }
 
-func healthHandler(s interface{}) http.Handler {
+func healthHandler(jsonStatus []byte) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		jsonStatus, err := json.Marshal(s)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		w.Write(jsonStatus)
@@ -30,12 +25,18 @@ func healthHandler(s interface{}) http.Handler {
 }
 
 // ServeDefault serve the default health {"status": "UP"} endpoint
-func ServeDefault(addr string) {
-	Serve(addr, status{"UP"})
+func ServeDefault(addr string) error {
+	return Serve(addr, status{"UP"})
 }
 
 // Serve starts the health endpoint listening on addr and serving the s status
-func Serve(addr string, s interface{}) {
-	http.Handle("/health", healthHandler(s))
+func Serve(addr string, s interface{}) error {
+	jsonStatus, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+	http.Handle("/health", healthHandler(jsonStatus))
 	log.Fatal(http.ListenAndServe(addr, nil))
+
+	return nil
 }
